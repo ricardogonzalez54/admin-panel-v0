@@ -1,0 +1,65 @@
+/* Personalización del modal */
+.custom-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    max-width: 100%;
+    font-family: Arial, sans-serif;
+    display: flex; /* Asegúrate de que el modal se muestra cuando se renderiza */
+    flex-direction: column;
+}
+
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+/* Estilos de los inputs y botones */
+.custom-modal-content input {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 1rem;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
+}
+
+.custom-modal-content button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+}
+
+.custom-modal-content button:first-child {
+    background-color: #007bff;
+    color: white;
+}
+
+.custom-modal-content button:last-child {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Estilo del mensaje de error */
+.error {
+    color: #dc3545;
+    margin-bottom: 15px;
+    font-size: 0.875rem;
+}

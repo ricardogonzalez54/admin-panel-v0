@@ -11,6 +11,7 @@ import BannerPage from "./pages/BannerPage";
 import AdPage from "./pages/AdPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import LoginPage from "./pages/LoginPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 
 import NavMenu from "./components/NavMenu";
 
@@ -25,7 +26,8 @@ function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         ) : (
           <>
-            <Route path="/" element={<ProductPage />} />
+            <Route path="/" element={<AdminDashboardPage />} />
+            <Route path="/products" element={<ProductPage />} />
             <Route path="/banners" element={<BannerPage />} />
             <Route path="/ads" element={<AdPage />} />
             <Route path="*" element={<NotFoundPage />} />

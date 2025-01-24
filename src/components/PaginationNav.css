@@ -1,0 +1,26 @@
+.pagination .page-item .page-link {
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: #007bff; /* Azul bootstrap */
+    border-color: #007bff;
+    color: #fff;
+  }
+  
+  .pagination .page-item .page-link:hover {
+    background-color: #f0f0f0;
+    color: #007bff;
+  }
+  
+  .pagination-dots {
+    cursor: pointer;
+  }
+  
+  .pagination-input {
+    width: 60px;
+    padding: 0.2rem 0.5rem;
+    text-align: center;
+    font-size: 1rem;
+  }
+  

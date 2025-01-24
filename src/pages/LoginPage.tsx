@@ -13,10 +13,13 @@ function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/login", {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          username,
+          password,
+        }
+      );
 
       const token = response.data.token;
       sessionStorage.setItem("token", token); // Guardamos el token en sessionStorage
@@ -24,7 +27,6 @@ function LoginPage() {
       setAuthenticated(true);
       // Navegamos a la página principal
       navigate("/");
-      console.log("Ya navegamos a /");
     } catch (err) {
       setError("Credenciales inválidas");
     }
