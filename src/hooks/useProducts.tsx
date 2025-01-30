@@ -16,6 +16,7 @@ export const useProducts = () => {
   const [error, setError] = useState("");
 
   const fetchProducts = async () => {
+    console.log("Se realizó fetchProducts");
     try {
       setLoading(true);
       const token = sessionStorage.getItem("token");
@@ -70,7 +71,7 @@ export const useProducts = () => {
           prev.map((product) =>
             product.id === id ? { ...product, ...updatedProduct } : product
           ) // Si el backend devuelve solo el producto con los campos editados también funciona
-      ); // Esto ya que sobreescribe solo lso campos de product que updatedProduct tenga diferente
+      ); // Esto ya que sobreescribe solo los campos de product que updatedProduct tenga diferente
       return updatedProduct;
     } catch (err) {
       console.error("Error al actualizar producto", err);

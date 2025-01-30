@@ -4,36 +4,60 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useAuthStore } from "./store/useAuthStore"; // Importa el store
+import { PAGES, Page, SubPage } from "./utils/pagesConfig";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 
-import ProductPage from "./pages/ProductPage";
-import BannerPage from "./pages/BannerPage";
-import AdPage from "./pages/AdPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import LoginPage from "./pages/LoginPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
-import NavMenu from "./components/NavMenu";
+import "core-js/actual/array/flat-map"; //Polyfill para poder usar flatMap, ns pq no funciona
 
 function App() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated); // Obtenemos el estado global de autenticación
+  // Función para construir las rutas dinámicamente desde PAGES
+  const buildRoutes = (pages: Page[]) => {
+    return pages.flatMap((page: Page) => {
+      if ("subPages" in page) {
+        // Si la página tiene subpáginas, construye rutas para cada subpágina
+        return page.subPages.map((subPage: SubPage) => (
+          <Route
+            key={subPage.path}
+            path={subPage.path}
+            element={<subPage.component />}
+          />
+        ));
+      } else {
+        // Si no tiene subpáginas, construye una única ruta
+        return (
+          <Route
+            key={page.path}
+            path={page.path}
+            element={<page.component />}
+          />
+        );
+      }
+    });
+  };
 
   return (
     <Router>
-      {isAuthenticated && <NavMenu />}
       <Routes>
-        {!isAuthenticated ? (
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        ) : (
-          <>
-            <Route path="/" element={<AdminDashboardPage />} />
-            <Route path="/products" element={<ProductPage />} />
-            <Route path="/banners" element={<BannerPage />} />
-            <Route path="/ads" element={<AdPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </>
-        )}
+        {/* Ruta pública para login */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* Layout principal con NavMenu */}
+        <Route element={<Layout />}>
+          {/* Rutas protegidas */}
+          <Route element={<ProtectedRoute />}>
+            {buildRoutes(PAGES)}
+
+            {/* Página no encontrada solo para usuarios autenticados */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Route>
+
+        {/* Página no encontrada para usuarios NO autenticados */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

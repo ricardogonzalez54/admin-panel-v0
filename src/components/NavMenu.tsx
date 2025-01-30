@@ -1,21 +1,26 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/useAuthStore"; // Importa el store
+import { Page } from "../utils/pagesConfig";
 
-const NavMenu = () => {
-  const navigate = useNavigate(); // Hook para redirigir
-  const { setAuthenticated } = useAuthStore(); // Usamos el setter para cambiar el estado de autenticación
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated); // Obtenemos el estado global de autenticación
+interface NavMenuProps {
+  pages: Page[];
+}
 
-  // Función para manejar el cierre de sesión
+// Type Guard para detectar si la página tiene subPages
+const isPageWithSubPages = (
+  page: Page
+): page is Extract<Page, { subPages: any }> => !!(page as any).subPages;
+
+const NavMenu: React.FC<NavMenuProps> = ({ pages }) => {
+  // Usamos el hook useNavigate para realizar la navegación de vuelta al login
+  const navigate = useNavigate();
   const handleLogout = () => {
-    sessionStorage.removeItem("token"); // Eliminar el token
-    setAuthenticated(false); // Actualizamos el estado global de autenticación
-    navigate("/login"); // Redirigir al login
+    sessionStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <div className="container">
+      <div className="container-fluid">
         <Link to="/" className="navbar-brand">
           Admin Panel
         </Link>
@@ -31,28 +36,48 @@ const NavMenu = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
-            <li className="nav-item">
-              <Link to="/products" className="nav-link">
-                Productos
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/banners" className="nav-link">
-                Banners
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/ads" className="nav-link">
-                Anuncios
-              </Link>
-            </li>
-            <li className="nav-item">
-              <button className="btn btn-danger" onClick={handleLogout}>
-                Cerrar sesión
-              </button>
-            </li>
+          <ul className="navbar-nav me-auto">
+            {pages.map((page, index) => (
+              <li
+                className={`nav-item ${
+                  isPageWithSubPages(page) ? "dropdown" : ""
+                }`}
+                key={index}
+              >
+                {isPageWithSubPages(page) ? (
+                  <>
+                    <button
+                      className="nav-link dropdown-toggle btn btn-link"
+                      id={`dropdown-${index}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      {page.name}
+                    </button>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby={`dropdown-${index}`}
+                    >
+                      {page.subPages.map((subPage, subIndex) => (
+                        <li key={subIndex}>
+                          <Link to={subPage.path} className="dropdown-item">
+                            {subPage.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <Link to={page.path!} className="nav-link">
+                    {page.name}
+                  </Link>
+                )}
+              </li>
+            ))}
           </ul>
+          <button className="btn btn-outline-danger" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
         </div>
       </div>
     </nav>

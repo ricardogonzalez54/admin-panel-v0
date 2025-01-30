@@ -1,6 +1,6 @@
 import React from "react";
 
-const AdminDashboardPage = () => {
+const AdminDashboardPage: React.FC = () => {
   return (
     <div className="container">
       <h1>Dashboard Principal</h1>
