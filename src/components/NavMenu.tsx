@@ -19,7 +19,7 @@ const NavMenu: React.FC<NavMenuProps> = ({ pages }) => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-2">
       <div className="container-fluid">
         <Link to="/" className="navbar-brand">
           Admin Panel
@@ -36,7 +36,7 @@ const NavMenu: React.FC<NavMenuProps> = ({ pages }) => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto">
+          <ul className="navbar-nav me-auto gap-">
             {pages.map((page, index) => (
               <li
                 className={`nav-item ${
@@ -75,7 +75,11 @@ const NavMenu: React.FC<NavMenuProps> = ({ pages }) => {
               </li>
             ))}
           </ul>
-          <button className="btn btn-outline-danger" onClick={handleLogout}>
+          <button
+            className="btn btn-danger"
+            type="button"
+            onClick={handleLogout}
+          >
             Cerrar sesión
           </button>
         </div>

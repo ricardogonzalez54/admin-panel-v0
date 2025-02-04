@@ -2,7 +2,7 @@ import React from "react";
 
 const AdPage: React.FC = () => {
   return (
-    <div className="container">
+    <div className="container my-3">
       <h1>Administrar Anuncios</h1>
       <p>Aquí podrás añadir, editar y eliminar anuncios.</p>
       {/* Agregar formulario y lista de anuncios */}

@@ -2,7 +2,7 @@ import AdminDashboardPage from "../pages/AdminDashboardPage";
 import ProductPage from "../pages/ProductPage";
 import BannerPage from "../pages/BannerPage";
 import AdPage from "../pages/AdPage";
-import CategoryPage from "../pages/CategoryPage";
+// import CategoryPage from "../pages/CategoryPage";
 
 // Tipos ajustados para Pages y SubPages
 export interface SubPage {
@@ -33,21 +33,28 @@ export const PAGES: Page[] = [
     component: AdminDashboardPage,
     order: 1,
   },
+  // Configuración para tener diferentes páginas para los productos con un dropdown button en el NavMenu
+  // {
+  //   name: "Productos",
+  //   order: 2,
+  //   subPages: [
+  //     {
+  //       name: "Lista Completa",
+  //       path: "/products",
+  //       component: ProductPage,
+  //     },
+  //     {
+  //       name: "Por Categorías",
+  //       path: "/categories",
+  //       component: CategoryPage,
+  //     },
+  //   ],
+  // },
   {
     name: "Productos",
+    path: "/products",
+    component: ProductPage,
     order: 2,
-    subPages: [
-      {
-        name: "Lista Completa",
-        path: "/products",
-        component: ProductPage,
-      },
-      {
-        name: "Por Categorías",
-        path: "/categories",
-        component: CategoryPage,
-      },
-    ],
   },
   {
     name: "Banners",

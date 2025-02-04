@@ -11,7 +11,9 @@ import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
-import "core-js/actual/array/flat-map"; //Polyfill para poder usar flatMap, ns pq no funciona
+import "core-js/actual/array/flat-map"; //Polyfill para poder usar flatMap (es2019)
+import "core-js/actual/object/entries"; //Polyfill para poder usar entries (es2019)
+import "core-js/actual/object/from-entries"; //Polyfill para poder usar fromEntries (es2017)
 
 function App() {
   // Función para construir las rutas dinámicamente desde PAGES

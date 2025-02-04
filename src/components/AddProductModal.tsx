@@ -4,7 +4,12 @@ import "./AddProductModal.css";
 
 interface AddProductModalProps {
   onClose: () => void;
-  onAddProduct: (product: Omit<Product, "id">) => void;
+  onAddProduct: (
+    action: "Agregar" | "Editar" | "Eliminar",
+    product?: Product,
+    productToAdd?: Omit<Product, "id">,
+    updatedProductFields?: Partial<Omit<Product, "id">>
+  ) => void; // Tipo de la función que muestra el modal de confirmación
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({
@@ -33,13 +38,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
     if (
       !formData.name ||
       !formData.category ||
-      !formData.stock ||
+      (!formData.stock && formData.stock !== 0) ||
       !formData.price
     ) {
       setError("Por favor, completa todos los campos obligatorios.");
       return;
     }
-    onAddProduct(formData);
+    onAddProduct("Agregar", undefined, formData);
     onClose();
   };
 

@@ -5,10 +5,18 @@ export interface Product {
   id: number;
   category: string;
   name: string;
-  imageUrl: string;
-  stock: number;
-  price: number;
+  imageUrl: string; // El backend gestiona las URL de las img de los productos
+  stock: number | null;
+  price: number | null;
+  imageFile?: File; // Propiedad exclusiva del frontend para manejar el upload de img para los productos
 }
+
+export type HandleProductAction = (
+  action: "Agregar" | "Editar" | "Eliminar",
+  product?: Product,
+  productToAdd?: Omit<Product, "id">,
+  updatedProductFields?: Partial<Omit<Product, "id">>
+) => void;
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,11 +33,10 @@ export const useProducts = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setProducts(response.data);
-      console.log("Respuesta del backend:", response.data);
+      // console.log("Respuesta del backend:", response.data);
     } catch (err) {
       setError("Error al cargar productos.");
-      console.log("Error al cargar productos");
-      console.log(err);
+      console.error("Error al cargar productos", err);
     } finally {
       setLoading(false);
     }
@@ -93,6 +100,7 @@ export const useProducts = () => {
       const addedProduct = response.data;
       // Actualizamos products global
       setProducts((prev) => [...prev, addedProduct]);
+      console.log("Producto agregado correctamente", addedProduct);
       return addedProduct; // Devolvemos el producto recién agregado
     } catch (err) {
       console.error("Error al agregar producto", err);
