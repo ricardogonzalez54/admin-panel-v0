@@ -151,25 +151,27 @@ const ProductPage: React.FC = () => {
   //
   // Manejo de edición de un producto, para coordinarlo con la lista filtrada y de paginación
   // Al confirmar la edición la llamamos
-  const updateProductField = (
+  const updateProductAndFilteredProd = async (
     id: number,
     updatedFields: Partial<Omit<Product, "id">>
   ) => {
+    // Llama a `updateProduct`
+    const updatedProductFromBackend = await updateProduct(id, updatedFields); // Pasa el campo y valor como un objeto
     // Actualiza la lista filtrada de productos
     setFilteredProducts((prev) =>
-      prev.map((product) =>
-        product.id === id ? { ...product, ...updatedFields } : product
+      prev.map(
+        (product) =>
+          product.id === id
+            ? { ...product, ...updatedProductFromBackend }
+            : product // No lo reemplazo directamente por si cambia la  implementación de updateProduct
       )
     );
-
-    // Llama a `updateProduct` con el nuevo formato
-    updateProduct(id, updatedFields); // Pasa el campo y valor como un objeto
   };
 
   //
   // Manejo de eliminación de productos, para coordinarlo con lista filtrada y de paginación
   // Al confirmar la eliminación la llamamos
-  const deleteProductField = (id: number) => {
+  const deleteProductAndFilteredProd = (id: number) => {
     // Eliminar de filteredProducts
     setFilteredProducts((prev) => prev.filter((product) => product.id !== id));
     deleteProduct(id); // Llamar a la función deleteProduct para eliminar de products globales
@@ -242,14 +244,14 @@ const ProductPage: React.FC = () => {
       case "Editar":
         console.log("Esto es updatedFields", updatedProductFields);
         if (product && updatedProductFields) {
-          updateProductField(product.id, updatedProductFields);
+          updateProductAndFilteredProd(product.id, updatedProductFields);
         } else {
           console.log("No se pudo editar el producto");
         }
         break;
       case "Eliminar":
         if (product) {
-          deleteProductField(product.id);
+          deleteProductAndFilteredProd(product.id);
         } else {
           console.log("No se pudo eliminar el producto");
         }
@@ -265,13 +267,10 @@ const ProductPage: React.FC = () => {
     setFilteredHappened(true);
   };
 
-  // Cuando lleguen products, actualizamos filteredProducts
+  // Cuando lleguen products, actualizamos filteredProducts. Este Effect se ejecuta solo 1 vez
   useEffect(() => {
     if (!firstFilteredProdFill && products.length > 0) {
       setFilteredProducts(products);
-      console.log(
-        "Ejecutando la primera vez para llenar filteredProducts con lo recibido del backend:"
-      );
       setFirstFilteredProdFill(true);
     }
   }, [products]);
@@ -305,12 +304,12 @@ const ProductPage: React.FC = () => {
           Agregar Producto
         </button>
       </div>
-      {showAddModal && (
-        <AddProductModal
-          onClose={() => setShowAddModal(false)}
-          onAddProduct={handleShowConfirmation}
-        />
-      )}
+      <AddProductModal
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAddProduct={handleShowConfirmation}
+      />
+
       {showConfirmationModal && (
         <Confirmation
           action={actionType}

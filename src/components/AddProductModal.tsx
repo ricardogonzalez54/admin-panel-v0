@@ -1,149 +1,274 @@
-import React from "react";
-import { Product } from "../hooks/useProducts";
-import "./AddProductModal.css";
+import React, { useState, useEffect, useRef } from "react";
+import { Modal, Form, Button, CloseButton, Alert } from "react-bootstrap";
+import { z } from "zod";
+import { Product, HandleProductAction } from "../hooks/useProducts";
+
+const ProductSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: "Nombre es requerido" })
+    .max(55, { message: "El nombre no puede superar los 55 caracteres" }), // Máximo 55 caracteres,
+  category: z
+    .string()
+    .min(1, { message: "Categoría es requerida" })
+    .max(30, { message: "La categoría no puede superar los 30 caracteres" }),
+  imageUrl: z.string().optional(),
+  imageFile: z.instanceof(File).optional(), // File upload Opcional
+  stock: z
+    .union([
+      z.number().int().min(0, "El stock debe ser un entero mayor o igual a 0"),
+      z.null(),
+    ])
+    .optional(),
+  price: z
+    .union([
+      z.number().min(0, "El stock debe ser un número mayor o igual a 0"),
+      z.null(),
+    ])
+    .optional(),
+});
 
 interface AddProductModalProps {
+  show: boolean;
   onClose: () => void;
-  onAddProduct: (
-    action: "Agregar" | "Editar" | "Eliminar",
-    product?: Product,
-    productToAdd?: Omit<Product, "id">,
-    updatedProductFields?: Partial<Omit<Product, "id">>
-  ) => void; // Tipo de la función que muestra el modal de confirmación
+  onAddProduct: HandleProductAction;
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({
+  show,
   onClose,
   onAddProduct,
 }) => {
-  const [formData, setFormData] = React.useState<Omit<Product, "id">>({
+  const [formData, setFormData] = useState<Omit<Product, "id">>({
     name: "",
     category: "",
     imageUrl: "",
     stock: 0,
-    price: 0,
+    price: 0.01,
   });
 
-  const [error, setError] = React.useState("");
+  const [errors, setErrors] = useState<z.ZodIssue[]>([]);
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Cuando imageFile cambia, actualizar la previsualización
+    if (imageFile) {
+      const newPreview = URL.createObjectURL(imageFile);
+      setImagePreview(newPreview);
+
+      // Limpiar URL cuando el componente se desmonte o imageFile cambie
+      return () => URL.revokeObjectURL(newPreview);
+    }
+  }, [imageFile]);
+
+  const clearFormErrorAndImgPreview = () => {
+    setFormData({
+      name: "",
+      category: "",
+      imageUrl: "",
+      stock: 0,
+      price: 0.01,
+    }); //Reset
+    setErrors([]);
+    setImageFile(undefined);
+    setImagePreview("");
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "stock" || name === "price" ? parseFloat(value) : value,
-    }));
+    const { name, value, files } = e.target;
+
+    // Si el cambio no es en el input de imagen, procesar normalmente
+    if (name !== "image") {
+      if (name === "stock" || name === "price") {
+        //Campos numéricos
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value === "" ? null : Number(value), //Si el usuario los deja vacío guardamos null
+        }));
+      } else {
+        //Campos de texto
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    }
+    // A partir de aquí solo manejamos cambios en el input de imagen
+    if (files?.length) {
+      setImageFile(files[0]);
+      return;
+    }
+
+    // Si se canceló la selección y hay una imagen previa, restaurar el input
+    console.log("Llegamos antes del bugfix");
+    console.log("Y tenemos esto en fileInputRef", fileInputRef);
+    console.log("Y esto en imageFile", imageFile);
+    if (fileInputRef.current && imageFile) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(imageFile);
+      fileInputRef.current.files = dataTransfer.files;
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(undefined);
+    setImagePreview("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = () => {
-    if (
-      !formData.name ||
-      !formData.category ||
-      (!formData.stock && formData.stock !== 0) ||
-      !formData.price
-    ) {
-      setError("Por favor, completa todos los campos obligatorios.");
+    const result = ProductSchema.safeParse({
+      ...formData,
+      imageFile,
+    });
+
+    if (!result.success) {
+      setErrors(result.error.issues);
       return;
     }
-    onAddProduct("Agregar", undefined, formData);
+    // Ahora solo enviamos el archivo, con una imageUrl vacía
+    const productToAdd = {
+      ...formData,
+      imageFile, // El backend procesará este archivo
+      imageUrl: "", // String vacío, el backend generará la URL real
+    };
+    console.log("ProductToAdd", productToAdd);
+    clearFormErrorAndImgPreview(); //Si todo sale bien limpiamos los estados antes de llamar al modal de confirmación
+    onAddProduct("Agregar", undefined, productToAdd); //Llamamos al modal de confirmación
     onClose();
   };
 
+  const getErrorMessage = (fieldName: string) => {
+    const fieldError = errors.find((error) => error.path[0] === fieldName);
+    return fieldError ? fieldError.message : null;
+  };
   return (
-    <>
-      <div className="custom-modal-overlay" onClick={onClose}></div>
-      <div className="custom-modal">
-        <div className="custom-modal-content">
-          <h2>Agregar Producto</h2>
-          {error && <p className="error">{error}</p>}
+    <Modal show={show} onHide={onClose} backdrop={"static"}>
+      <Modal.Header closeButton>
+        <Modal.Title>Agregar Producto</Modal.Title>
+      </Modal.Header>
 
-          <div className="mb-3">
-            <label htmlFor="name" className="form-label">
-              Nombre (obligatorio)
-            </label>
-            <input
+      <Modal.Body>
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label>Nombre (obligatorio)</Form.Label>
+            <Form.Control
               type="text"
               name="name"
-              id="name"
-              className="form-control"
-              placeholder="Nombre (obligatorio)"
               value={formData.name}
               onChange={handleInputChange}
+              isInvalid={!!getErrorMessage("name")}
             />
-          </div>
+            <Form.Control.Feedback type="invalid">
+              {getErrorMessage("name")}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <div className="mb-3">
-            <label htmlFor="category" className="form-label">
-              Categoría (obligatorio)
-            </label>
-            <input
+          <Form.Group className="mb-3">
+            <Form.Label>Categoría (obligatorio)</Form.Label>
+            <Form.Control
               type="text"
               name="category"
-              id="category"
-              className="form-control"
-              placeholder="Categoría"
               value={formData.category}
               onChange={handleInputChange}
+              isInvalid={!!getErrorMessage("category")}
             />
-          </div>
+            <Form.Control.Feedback type="invalid">
+              {getErrorMessage("category")}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <div className="mb-3">
-            <label htmlFor="imageUrl" className="form-label">
-              Image URL
-            </label>
-            <input
-              type="text"
-              name="imageUrl"
-              id="imageUrl"
-              className="form-control"
-              placeholder="Image URL"
-              value={formData.imageUrl}
-              onChange={handleInputChange}
-            />
-          </div>
+          <Form.Group className="mb-3">
+            <Form.Label>Imagen</Form.Label>
+            <div className="d-flex align-items-start gap-2">
+              <div className="flex-grow-1">
+                <Form.Control
+                  ref={fileInputRef}
+                  type="file"
+                  name="image"
+                  onChange={handleInputChange}
+                  accept="image/*"
+                />
+              </div>
+              {imagePreview && (
+                <CloseButton
+                  onClick={handleRemoveImage}
+                  aria-label="Eliminar imagen"
+                />
+              )}
+            </div>
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Vista previa"
+                  style={{
+                    maxWidth: "200px",
+                    maxHeight: "200px",
+                    objectFit: "contain",
+                  }}
+                  className="border rounded"
+                />
+              </div>
+            )}
+          </Form.Group>
 
-          <div className="mb-3">
-            <label htmlFor="stock" className="form-label">
-              Stock (obligatorio)
-            </label>
-            <input
+          <Form.Group className="mb-3">
+            <Form.Label>Stock (obligatorio)</Form.Label>
+            <Form.Control
               type="number"
               name="stock"
-              id="stock"
-              className="form-control"
-              placeholder="Stock (obligatorio)"
-              value={formData.stock}
+              value={
+                formData.stock || formData.stock == 0 ? formData.stock : ""
+              }
               onChange={handleInputChange}
+              isInvalid={!!getErrorMessage("stock")}
               min="0"
             />
-          </div>
+            <Form.Control.Feedback type="invalid">
+              {getErrorMessage("stock")}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <div className="mb-3">
-            <label htmlFor="price" className="form-label">
-              Precio (obligatorio)
-            </label>
-            <input
+          <Form.Group className="mb-3">
+            <Form.Label>Precio (obligatorio)</Form.Label>
+            <Form.Control
               type="number"
               name="price"
-              id="price"
-              className="form-control"
-              placeholder="Precio (obligatorio)"
-              value={formData.price}
+              value={
+                formData.price || formData.price == 0 ? formData.price : ""
+              }
               onChange={handleInputChange}
+              isInvalid={!!getErrorMessage("price")}
               min="0.01"
+              step="0.01"
             />
-          </div>
+            <Form.Control.Feedback type="invalid">
+              {getErrorMessage("price")}
+            </Form.Control.Feedback>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
 
-          <div className="d-flex justify-content-between">
-            <button className="btn btn-primary" onClick={handleSubmit}>
-              Confirmar
-            </button>
-            <button className="btn btn-secondary" onClick={onClose}>
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
+      <Modal.Footer>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            onClose();
+            clearFormErrorAndImgPreview();
+          }}
+        >
+          Cancelar
+        </Button>
+        <Button variant="primary" onClick={handleSubmit}>
+          Confirmar
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 

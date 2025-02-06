@@ -60,8 +60,27 @@ const Confirmation: React.FC<ConfirmationProps> = ({
                 <strong>Nombre:</strong> {product.name} → {updatedProduct?.name}
               </li>
               <li>
-                <strong>Image URL:</strong> {product.imageUrl} →{" "}
-                {updatedProduct?.imageUrl}
+                <strong>Imagen:</strong>{" "}
+                {product.imageUrl ? (
+                  <a
+                    href={product.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ms-2"
+                  >
+                    Imagen anterior
+                  </a>
+                ) : (
+                  "Sin imagen"
+                )}{" "}
+                →{" "}
+                {updatedProduct?.imageFile && !product.imageUrl
+                  ? `Se agregó: ${updatedProduct.imageFile.name}`
+                  : updatedProduct?.imageFile && product.imageUrl
+                  ? `${updatedProduct.imageFile.name}`
+                  : !updatedProduct?.imageFile && product.imageUrl
+                  ? `Se mantiene su Imagen`
+                  : `Sin imagen`}
               </li>
               <li>
                 <strong>Stock:</strong> {product.stock} →{" "}
@@ -78,8 +97,21 @@ const Confirmation: React.FC<ConfirmationProps> = ({
           <div className="mt-3">
             <strong>Detalles:</strong>
             <p>
-              {product.name} | Categoría: {product.category} <br />
-              Stock: {product.stock} | Precio: ${product.price}
+              Producto: {product.name} | Categoría: {product.category} <br />
+              Stock: {product.stock} | Precio: ${product.price} <br />
+              Imagen:
+              {product.imageUrl ? (
+                <a
+                  href={product.imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ms-2"
+                >
+                  Ver
+                </a>
+              ) : (
+                "-"
+              )}
             </p>
           </div>
         )}
@@ -87,9 +119,14 @@ const Confirmation: React.FC<ConfirmationProps> = ({
           <div className="mt-3">
             <strong>Detalles:</strong>
             <p>
-              Producto: {newProduct.name} | Categoría: {newProduct.category}{" "}
+              Producto: {newProduct.name} | Categoría: {newProduct.category}
               <br />
               Stock: {newProduct.stock} | Precio: ${newProduct.price}
+              <br />
+              Imagen:{" "}
+              {newProduct.imageFile
+                ? `Se agregó: ${newProduct.imageFile.name}`
+                : `-`}
             </p>
           </div>
         )}
