@@ -237,7 +237,12 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
   const handleRemoveImage = () => {
     setImagePreview("");
-    setFormData({ ...formData, imageFile: undefined });
+    //Damos a formData el valor original de imageUrl, así hasActualChanges puede discernir que realmente no se ha tocado
+    setFormData({
+      ...formData,
+      imageFile: undefined,
+      imageUrl: products.find((p) => p.id === editingProductId)!.imageUrl,
+    });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
