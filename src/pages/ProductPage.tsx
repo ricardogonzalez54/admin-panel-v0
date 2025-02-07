@@ -108,7 +108,7 @@ const ProductPage: React.FC = () => {
   //
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Productos por página
+  const itemsPerPage = 7; // Productos por página
 
   const totalPages = Math.ceil(
     (filteredHappened ? filteredProducts.length : products.length) /

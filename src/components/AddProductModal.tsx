@@ -218,7 +218,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Stock (obligatorio)</Form.Label>
+            <Form.Label>Stock</Form.Label>
             <Form.Control
               type="number"
               name="stock"
@@ -235,7 +235,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Precio (obligatorio)</Form.Label>
+            <Form.Label>Precio</Form.Label>
             <Form.Control
               type="number"
               name="price"

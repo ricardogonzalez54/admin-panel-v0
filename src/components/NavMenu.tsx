@@ -76,7 +76,7 @@ const NavMenu: React.FC<NavMenuProps> = ({ pages }) => {
             ))}
           </ul>
           <button
-            className="btn btn-danger"
+            className="btn btn-outline-light"
             type="button"
             onClick={handleLogout}
           >

@@ -83,12 +83,15 @@ const Confirmation: React.FC<ConfirmationProps> = ({
                   : `Sin imagen`}
               </li>
               <li>
-                <strong>Stock:</strong> {product.stock} →{" "}
-                {updatedProduct?.stock}
+                <strong>Stock:</strong> {product.stock ?? "Sin información"} →{" "}
+                {updatedProduct?.stock ?? "Sin información"}
               </li>
               <li>
-                <strong>Precio:</strong> ${product.price} → $
-                {updatedProduct?.price}
+                <strong>Precio:</strong>{" "}
+                {product.price ? "$" + product.price : "Sin información"} →{" "}
+                {updatedProduct?.price
+                  ? "$" + updatedProduct.price
+                  : "Sin información"}
               </li>
             </ul>
           </>
@@ -98,7 +101,8 @@ const Confirmation: React.FC<ConfirmationProps> = ({
             <strong>Detalles:</strong>
             <p>
               Producto: {product.name} | Categoría: {product.category} <br />
-              Stock: {product.stock} | Precio: ${product.price} <br />
+              Stock: {product.stock ?? "Sin información"} | Precio:{" "}
+              {product.price ? "$" + product.price : "Sin información"} <br />
               Imagen:
               {product.imageUrl ? (
                 <a
@@ -110,7 +114,7 @@ const Confirmation: React.FC<ConfirmationProps> = ({
                   Ver
                 </a>
               ) : (
-                "-"
+                " - "
               )}
             </p>
           </div>
@@ -121,12 +125,13 @@ const Confirmation: React.FC<ConfirmationProps> = ({
             <p>
               Producto: {newProduct.name} | Categoría: {newProduct.category}
               <br />
-              Stock: {newProduct.stock} | Precio: ${newProduct.price}
+              Stock: {newProduct.stock ?? "Sin información"} | Precio:{" "}
+              {newProduct.price ? "$" + newProduct.price : "Sin información"}
               <br />
               Imagen:{" "}
               {newProduct.imageFile
                 ? `Se agregó: ${newProduct.imageFile.name}`
-                : `-`}
+                : ` - `}
             </p>
           </div>
         )}

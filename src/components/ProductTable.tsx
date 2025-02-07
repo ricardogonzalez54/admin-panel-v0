@@ -254,7 +254,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
         handleSubmit(e, products.find((p) => p.id == editingProductId)!.id);
       }}
     >
-      <table className="table">
+      <table className="table table-striped table-hover">
         <thead>
           <tr>
             <th onClick={() => onSort("name")} style={{ cursor: "pointer" }}>

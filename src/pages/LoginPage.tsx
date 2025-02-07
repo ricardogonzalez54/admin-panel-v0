@@ -33,7 +33,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container bg-white m-5 px-5 py-4 border border-light rounded w-50">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -63,7 +63,7 @@ function LoginPage() {
           />
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-dark">
           Iniciar sesión
         </button>
       </form>
